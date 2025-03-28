@@ -785,7 +785,7 @@ unsigned long verifySRAM_GB() {
   return 0;
 }
 
-//检测sram
+//Test sram
 void TestSramGB(byte bankCnt , word wTestSize)
 {
 
@@ -881,6 +881,28 @@ void TestSramGB(byte bankCnt , word wTestSize)
 // Write 29F032 flashrom
 // A0-A13 directly connected to cart edge -> 16384(0x0-0x3FFF) bytes per bank -> 256(0x0-0xFF) banks
 // A14-A21 connected to MBC5
+
+void busyCheck_GB(unsigned long address, byte data) {
+  byte statusReg = readByte_GB(address);
+  //byte count = 0;
+  while ((statusReg & 0x80) != (data & 0x80)) {
+    // Update Status
+    statusReg = readByte_GB(address);
+    /* Debug
+    count++;
+    if (count > 250) {
+      println_Msg("");
+      print_Msg(F("Bank: "));
+      print_Msg(currBank);
+      print_Msg(F(" Addr: "));
+      println_Msg(currAddr + currByte);
+      display_Update();
+      wait();
+    }
+    */
+  }
+}
+
 void writeFlash29F_GB(byte MBC, boolean flashErase) {
   // Launch filebrowser
   filePath[0] = '\0';
@@ -1953,23 +1975,6 @@ void testCFI_GB(uint16_t testBanks) {
   }
 }
 
-void busyCheck_GB(unsigned long address, byte data) {
-  byte statusReg = readByte_GB(address);
-  //byte count = 0;
-  while ((statusReg & 0x80) != (data & 0x80)) {
-    // Update Status
-    statusReg = readByte_GB(address);
-    /* Debug
-    count++;
-    if (count > 250) {
-      println_Msg("");
-      print_Msg(F("Bank: "));
-      print_Msg(currBank);
-      print_Msg(F(" Addr: "));
-      println_Msg(currAddr + currByte);
-      display_Update();
-      wait();
-    }
 
 void TestMemGB(boolean bFast)
 {
