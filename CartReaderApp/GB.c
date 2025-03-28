@@ -1127,8 +1127,10 @@ void writeFlash29F_GB(byte MBC, boolean flashErase) {
             gpio_bit_reset(CTRL,RD);
 
             // Busy check
-            while (((GPIO_ISTAT(DATA) >> 8) & 0x80) != (sdBuffer[currByte] & 0x80)) {
+            //while (((GPIO_ISTAT(DATA) >> 8) & 0x80) != (sdBuffer[currByte] & 0x80)) {
 
+            busyCheck_GB(currAddr + currByte, sdBuffer[currByte]);
+            
             }
 
             // Switch OE/RD(PH6) to HIGH
@@ -1951,7 +1953,23 @@ void testCFI_GB(uint16_t testBanks) {
   }
 }
 
-
+void busyCheck_GB(unsigned long address, byte data) {
+  byte statusReg = readByte_GB(address);
+  //byte count = 0;
+  while ((statusReg & 0x80) != (data & 0x80)) {
+    // Update Status
+    statusReg = readByte_GB(address);
+    /* Debug
+    count++;
+    if (count > 250) {
+      println_Msg("");
+      print_Msg(F("Bank: "));
+      print_Msg(currBank);
+      print_Msg(F(" Addr: "));
+      println_Msg(currAddr + currByte);
+      display_Update();
+      wait();
+    }
 
 void TestMemGB(boolean bFast)
 {
